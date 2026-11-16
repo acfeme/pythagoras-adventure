@@ -576,7 +576,15 @@ document.querySelectorAll('.yt').forEach(el=>{
       el.appendChild(m);return;
     }
     const start=(st?`&start=${st}`:'')+(en?`&end=${en}`:'');
-    el.innerHTML=`<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&playsinline=1${start}" title="YouTube 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+    el.innerHTML=`<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&playsinline=1&cc_load_policy=0&iv_load_policy=3&enablejsapi=1${start}" title="YouTube 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+    // 자막(CC) 끄기: 플레이어에 자막 모듈을 내리라는 명령을 몇 초 동안 반복해서 보냄
+    const fr=el.querySelector('iframe');
+    const off=()=>{try{
+      fr.contentWindow.postMessage(JSON.stringify({event:'listening',id:id}),'*');
+      fr.contentWindow.postMessage(JSON.stringify({event:'command',func:'unloadModule',args:['captions']}),'*');
+      fr.contentWindow.postMessage(JSON.stringify({event:'command',func:'unloadModule',args:['cc']}),'*');
+    }catch(e){}};
+    fr.addEventListener('load',()=>{let n=0;const t=setInterval(()=>{off();if(++n>=20)clearInterval(t);},1000);});
   },{once:false});
 });
 
