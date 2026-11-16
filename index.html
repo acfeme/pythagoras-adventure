@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>피타고라스 정리 대모험</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff8ee; --card:#ffffff; --ink:#2b2340; --muted:#6b6380;
+  --a:#ff6b6b; --b:#4dabf7; --c:#ffd43b; --g:#51cf66; --p:#9775fa;
+  --line:#ece4d6; --shadow:0 6px 0 rgba(43,35,64,.12);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Gowun Dodum",system-ui,sans-serif;font-size:17px;line-height:1.7}
+h1,h2,h3,.jua{font-family:"Jua",sans-serif;font-weight:400;line-height:1.3}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px}
+
+/* 상단 바 */
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,248,238,.94);backdrop-filter:blur(6px);border-bottom:2px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;gap:12px;padding-top:8px;padding-bottom:8px}
+.topbar .logo{font-family:"Jua";font-size:20px;white-space:nowrap}
+.progress{flex:1;height:14px;background:#eee3d0;border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--a),var(--c),var(--g),var(--b),var(--p));transition:width .5s}
+.score{font-family:"Jua";font-size:18px;white-space:nowrap}
+
+/* 히어로 */
+.hero{text-align:center;padding:48px 0 24px}
+.hero h1{font-size:clamp(34px,7vw,60px);margin:8px 0}
+.hero h1 span{display:inline-block;animation:bounce 1.8s infinite}
+.hero h1 span:nth-child(2){animation-delay:.15s}.hero h1 span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.formula{font-family:"Jua";font-size:clamp(30px,6vw,46px);display:inline-block;background:var(--card);padding:6px 26px;border-radius:20px;box-shadow:var(--shadow);border:3px solid var(--ink)}
+.formula .fa{color:var(--a)}.formula .fb{color:var(--b)}.formula .fc{color:#e0a800}
+.map{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:28px 0 0}
+.map a{text-decoration:none;color:var(--ink);background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:6px 14px;font-family:"Jua";box-shadow:0 3px 0 var(--ink);transition:transform .15s}
+.map a:hover{transform:translateY(-3px)}
+
+/* 섹션 */
+section.stage{background:var(--card);border-radius:26px;padding:28px 24px;margin:28px 0;border:3px solid var(--ink);box-shadow:var(--shadow)}
+.badge{display:inline-block;font-family:"Jua";color:#fff;padding:4px 14px;border-radius:99px;font-size:15px}
+.stage h2{font-size:clamp(26px,4.5vw,34px);margin:8px 0 12px}
+.note{background:#fff4c2;border-radius:16px;padding:12px 16px;margin:14px 0;border-left:6px solid var(--c)}
+.tip{background:#e7f5ff;border-radius:16px;padding:12px 16px;margin:14px 0;border-left:6px solid var(--b)}
+.big{font-family:"Jua";font-size:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:center}
+@media (max-width:700px){.grid2{grid-template-columns:1fr}}
+
+/* 영상 */
+.vids{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;margin:18px 0}
+.vbox{width:100%;max-width:560px}
+.vbox.short{max-width:270px}
+.yt{position:relative;width:100%;aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:#000;border:3px solid var(--ink);cursor:pointer}
+.short .yt{aspect-ratio:9/16}
+.yt img{width:100%;height:100%;object-fit:cover;opacity:.85;transition:opacity .2s}
+.yt:hover img{opacity:1}
+.yt .play{position:absolute;inset:0;display:grid;place-items:center}
+.yt .play b{width:72px;height:72px;border-radius:50%;background:var(--a);display:grid;place-items:center;box-shadow:0 0 0 6px rgba(255,255,255,.5);transition:transform .2s}
+.yt:hover .play b{transform:scale(1.1)}
+.yt .play b::after{content:"";border-left:24px solid #fff;border-top:15px solid transparent;border-bottom:15px solid transparent;margin-left:6px}
+.yt .dur{position:absolute;right:10px;top:10px;background:rgba(0,0,0,.75);color:#fff;font-size:13px;padding:2px 8px;border-radius:8px}
+.yt .fileMsg{position:absolute;inset:0;background:rgba(43,35,64,.92);color:#fff;display:grid;place-items:center;text-align:center;padding:12px;font-size:15px;line-height:1.6}
+.yt .fileMsg b{color:#ffd43b;font-family:"Jua";font-size:18px}
+.yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vcap{font-family:"Jua";font-size:16px;margin:8px 2px 0;text-align:center}
+.vcap a{color:var(--muted);font-family:"Gowun Dodum";font-size:13px;display:block}
+.watch{font-size:14px;color:var(--muted);text-align:center;margin-top:-4px}
+
+/* 퀴즈 */
+.quiz{background:#f3f0ff;border:3px dashed var(--p);border-radius:20px;padding:18px 18px 14px;margin:22px 0}
+.quiz .qh{font-family:"Jua";color:var(--p);font-size:17px}
+.quiz .q{font-size:19px;margin:6px 0 12px}
+.opts{display:flex;flex-wrap:wrap;gap:10px}
+.opts button,.btn{font:inherit;font-family:"Jua";font-size:18px;padding:8px 18px;border-radius:14px;border:2px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;box-shadow:0 3px 0 var(--ink);transition:transform .1s}
+.opts button:hover:not(:disabled),.btn:hover{transform:translateY(-2px)}
+.opts button:disabled{cursor:default}
+.opts button.right{background:var(--g);color:#fff}
+.opts button.wrong{background:var(--a);color:#fff;animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.numq{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.numq input{font:inherit;font-family:"Jua";font-size:20px;width:110px;padding:6px 12px;border-radius:12px;border:2px solid var(--ink)}
+.fb{min-height:1.6em;margin-top:10px;font-weight:bold}
+.fb.ok{color:#2b8a3e}.fb.no{color:#c92a2a}
+.hint{font-size:15px;color:var(--muted)}
+
+/* 탐험기 */
+.lab{display:grid;grid-template-columns:260px 1fr;gap:18px;align-items:center}
+@media (max-width:700px){.lab{grid-template-columns:1fr}}
+.lab label{display:block;font-family:"Jua";margin-top:8px}
+.lab input[type=range]{width:100%}
+.readout{font-family:"Jua";font-size:20px;background:#fffbe6;border-radius:14px;padding:10px 14px;margin-top:12px;border:2px solid var(--c)}
+.readout .ra{color:var(--a)}.readout .rb{color:var(--b)}.readout .rc{color:#d39e00}
+svg text{font-family:"Jua"}
+
+/* 학파 카드 */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:16px 0}
+.flip{perspective:900px;height:190px;cursor:pointer}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .bk{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;border:3px solid var(--ink);padding:14px;display:flex;flex-direction:column;justify-content:center}
+.flip .f{background:linear-gradient(135deg,#fff4c2,#ffe3e3);text-align:center}
+.flip .f .em{font-size:44px;line-height:1.1}
+.flip .f .pic{width:92px;height:84px;margin:0 auto}
+.flip.tall{height:210px}
+.steps{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.steps .btn{font-size:16px;padding:6px 12px}
+.steps .btn.on{background:var(--c)}
+.eq{font-family:"Jua";font-size:20px;background:#fffbe6;border:2px solid var(--c);border-radius:14px;padding:10px 14px;min-height:3.2em}
+.judge{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+@media (max-width:600px){.judge{grid-template-columns:1fr}}
+.judge div{border:3px solid var(--ink);border-radius:16px;padding:10px;text-align:center;background:#fff}
+.judge b{font-family:"Jua";font-size:20px;display:block}
+.verdict{font-family:"Jua";font-size:22px;padding:6px 14px;border-radius:12px;display:inline-block;color:#fff}
+.tri3{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tri3 input{font:inherit;font-family:"Jua";font-size:20px;width:80px;padding:6px 10px;border-radius:12px;border:2px solid var(--ink)}
+.flip .f .t{font-family:"Jua";font-size:20px;margin-top:6px}
+.flip .f small{color:var(--muted)}
+.flip .bk{background:#fff;transform:rotateY(180deg);font-size:15px;line-height:1.6}
+
+table.triples{border-collapse:collapse;margin:10px auto;font-family:"Jua";font-size:19px}
+table.triples td,table.triples th{border:2px solid var(--ink);padding:6px 16px;text-align:center}
+table.triples th{background:#fff4c2}
+
+.final{text-align:center}
+#result{font-family:"Jua";font-size:26px;margin:14px 0}
+footer{text-align:center;color:var(--muted);font-size:14px;padding:24px 0 48px}
+.warn{background:#ffe066;color:#2b2340;border-bottom:3px solid #2b2340;padding:10px 16px;text-align:center;font-size:16px}
+[hidden]{display:none!important}
+canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<noscript><div class="warn">⚠️ 이 화면에서는 영상·탐험기·문제가 작동하지 않아요. <b>크롬(Chrome)이나 엣지(Edge)</b>에서 열어 주세요. (같은 폴더의 <b>수업용_실행.bat</b>을 더블클릭하면 가장 좋아요)</div></noscript>
+<div class="warn" id="fileWarn" hidden>💡 지금은 파일을 직접 연 상태라 <b>영상이 재생되지 않아요.</b> 이 창을 닫고, 이 파일이 있는 폴더에서 ⚙️ <b>수업용_실행</b> 파일을 더블클릭해 주세요. (탐험기·문제는 지금도 작동해요)</div>
+
+<div class="topbar"><div class="wrap">
+  <div class="logo">📐 피타고라스 대모험</div>
+  <div class="progress"><i id="bar"></i></div>
+  <div class="score">⭐ <span id="score">0</span> / <span id="total">0</span></div>
+</div></div>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="badge" style="background:var(--p)">중학교 2학년 · 도형의 닮음과 피타고라스 정리</div>
+  <h1><span>피타고라스</span> <span>정리</span> <span>대모험!</span></h1>
+  <div class="formula"><span class="fa">a²</span> + <span class="fb">b²</span> = <span class="fc">c²</span></div>
+  <p style="margin-top:18px">영상 보고 👀 → 원리 배우고 🧠 → 문제 풀고 ✍️ → 별을 모아요 ⭐<br>모든 스테이지를 깨면 축하 파티가 열려요! 🎉</p>
+  <nav class="map">
+    <a href="#s1">1. 직각삼각형</a>
+    <a href="#s2">2. 정리 탐험</a>
+    <a href="#s3">3. 증명 마술</a>
+    <a href="#s3b">4. 예각·둔각 판별</a>
+    <a href="#s4">5. 피타고라스 학파</a>
+    <a href="#s5">6. 무리수 사건</a>
+    <a href="#s6">🏆 최종 보스</a>
+  </nav>
+</header>
+
+<!-- STAGE 1 -->
+<section class="stage" id="s1">
+  <span class="badge" style="background:var(--a)">STAGE 1</span>
+  <h2>먼저, 직각삼각형과 친해지기 🤝</h2>
+  <div class="grid2">
+    <div>
+      <p>한 각이 <b>90°(직각)</b>인 삼각형을 <b>직각삼각형</b>이라고 해요.</p>
+      <ul>
+        <li>직각을 끼고 있는 두 변 → <b style="color:var(--a)">a</b>, <b style="color:var(--b)">b</b></li>
+        <li>직각과 <b>마주 보는</b> 변 → <b style="color:#d39e00">빗변 c</b></li>
+      </ul>
+      <div class="note">💡 <b>빗변</b>은 직각삼각형에서 <b>항상 가장 긴 변</b>이에요!<br>(직각이 가장 큰 각이니까, 그 맞은편 변이 가장 길어요.)</div>
+    </div>
+    <svg viewBox="0 0 300 230" role="img" aria-label="직각삼각형: 빗변 c, 나머지 두 변 a, b">
+      <polygon points="40,190 260,190 40,40" fill="#fff4c2" stroke="#2b2340" stroke-width="4" stroke-linejoin="round"/>
+      <rect x="40" y="168" width="22" height="22" fill="none" stroke="#2b2340" stroke-width="3"/>
+      <line x1="40" y1="190" x2="40" y2="40" stroke="#ff6b6b" stroke-width="7" stroke-linecap="round"/>
+      <line x1="40" y1="190" x2="260" y2="190" stroke="#4dabf7" stroke-width="7" stroke-linecap="round"/>
+      <line x1="40" y1="40" x2="260" y2="190" stroke="#f0b400" stroke-width="7" stroke-linecap="round"/>
+      <text x="16" y="122" font-size="28" fill="#ff6b6b">a</text>
+      <text x="142" y="222" font-size="28" fill="#4dabf7">b</text>
+      <text x="160" y="104" font-size="26" fill="#d39e00">c (빗변)</text>
+    </svg>
+  </div>
+
+  <div class="quiz" data-type="mc" data-answer="2">
+    <div class="qh">🧩 개념 체크 1</div>
+    <div class="q">직각삼각형에서 <b>빗변</b>에 대한 설명으로 옳은 것은?</div>
+    <div class="opts">
+      <button>가장 짧은 변</button>
+      <button>직각을 끼고 있는 변</button>
+      <button>직각과 마주 보는 가장 긴 변</button>
+    </div>
+    <div class="fb" data-ok="딩동댕! 빗변은 직각의 맞은편, 가장 긴 변이에요 🎯" data-no="다시 생각해 봐요! 직각과 '마주 보는' 변을 찾아보세요."></div>
+  </div>
+</section>
+
+<!-- STAGE 2 -->
+<section class="stage" id="s2">
+  <span class="badge" style="background:var(--b)">STAGE 2</span>
+  <h2>피타고라스 정리, 눈으로 확인하기 👀</h2>
+  <p class="big">직각삼각형에서 <span style="color:var(--a)">a²</span> + <span style="color:var(--b)">b²</span> = <span style="color:#d39e00">c²</span></p>
+  <p>말로 하면? 👉 <b>두 짧은 변 위의 정사각형 넓이를 더하면, 빗변 위의 정사각형 넓이와 같다!</b></p>
+
+  <div class="vids">
+    <div class="vbox"><div class="yt" data-id="PLMAULYCNco" data-start="372" data-end="468"></div>
+      <div class="vcap">🎬 EBS 이야기 수학사 – 피타고라스 정리의 탄생<a href="https://youtu.be/PLMAULYCNco" target="_blank" rel="noopener">전체 영상(8분) YouTube에서 보기 ↗</a></div></div>
+    <div class="vbox short"><div class="yt" data-id="smGWNWOG810" data-dur="0:42"></div>
+      <div class="vcap">🎬 증명 방법만 400개가 넘는다고?!<a href="https://www.youtube.com/shorts/smGWNWOG810" target="_blank" rel="noopener">YouTube에서 보기 ↗</a></div></div>
+  </div>
+
+  <h3>🔬 정사각형 넓이 탐험기</h3>
+  <p class="hint">슬라이더를 움직여 a, b를 바꿔 보세요. 정사각형 넓이가 어떻게 변할까요?</p>
+  <div class="lab">
+    <div>
+      <label>a = <span id="av">3</span></label><input type="range" id="ar" min="1" max="12" value="3">
+      <label>b = <span id="bv">4</span></label><input type="range" id="br" min="1" max="12" value="4">
+      <div class="readout" id="readout"></div>
+      <div class="hint" id="nice" style="margin-top:8px"></div>
+    </div>
+    <svg id="labsvg" viewBox="0 0 400 400" role="img" aria-label="세 변 위에 정사각형을 그린 직각삼각형"></svg>
+  </div>
+
+  <div class="tip">🎵 <b>피타고라스 수</b>: 세 변이 모두 자연수인 직각삼각형!
+    <table class="triples"><tr><th>a</th><th>b</th><th>c</th><th>확인</th></tr>
+      <tr><td>3</td><td>4</td><td>5</td><td>9+16=25</td></tr>
+      <tr><td>5</td><td>12</td><td>13</td><td>25+144=169</td></tr>
+      <tr><td>6</td><td>8</td><td>10</td><td>36+64=100</td></tr>
+      <tr><td>8</td><td>15</td><td>17</td><td>64+225=289</td></tr>
+    </table>
+    슬라이더로 위의 조합을 만들어 보세요. 반짝 효과가 나타나요! ✨
+  </div>
+
+  <div class="quiz" data-type="num" data-answer="5">
+    <div class="qh">🧩 개념 체크 2</div>
+    <div class="q">직각을 낀 두 변이 3, 4인 직각삼각형의 빗변의 길이는?</div>
+    <div class="numq"><input type="number" inputmode="numeric" placeholder="?"><button class="btn">확인</button></div>
+    <div class="fb" data-ok="정답! 3² + 4² = 9 + 16 = 25 = 5² 🎉" data-no="힌트: 3² + 4² = ? 그리고 어떤 수를 제곱하면 그 값이 될까요?"></div>
+  </div>
+
+  <div class="quiz" data-type="num" data-answer="12">
+    <div class="qh">🧩 개념 체크 3</div>
+    <div class="q">빗변이 13, 한 변이 5인 직각삼각형에서 나머지 한 변의 길이는?</div>
+    <div class="numq"><input type="number" inputmode="numeric" placeholder="?"><button class="btn">확인</button></div>
+    <div class="fb" data-ok="훌륭해요! 13² − 5² = 169 − 25 = 144 = 12² 💪" data-no="힌트: 빗변이 c예요. b² = c² − a² 로 계산해 보세요."></div>
+  </div>
+</section>
+
+<!-- STAGE 3 -->
+<section class="stage" id="s3">
+  <span class="badge" style="background:var(--g)">STAGE 3</span>
+  <h2>세 가지 증명 마술 🪄</h2>
+  <p>정말 a² + b² = c² 일까요? <b>똑같은 직각삼각형 4개</b>만 있으면 증명할 수 있어요!</p>
+
+  <div class="vids">
+    <div class="vbox short"><div class="yt" data-id="xit-7Si1cPw" data-start="4" data-dur="0:33"></div>
+      <div class="vcap">🎬 삼각형 4개만 옮기면 증명 끝!<a href="https://www.youtube.com/shorts/xit-7Si1cPw" target="_blank" rel="noopener">YouTube에서 보기 ↗</a></div></div>
+    <div class="vbox short"><div class="yt" data-id="SZpp6aCNhT4" data-dur="0:11"></div>
+      <div class="vcap">🎬 피타고라스 정리의 실제 증명 (11초!)<a href="https://www.youtube.com/shorts/SZpp6aCNhT4" target="_blank" rel="noopener">YouTube에서 보기 ↗</a></div></div>
+  </div>
+
+  <h3>🧩 증명 1 · 삼각형 4개 직접 옮겨 보기</h3>
+  <div class="grid2">
+    <svg id="proof" viewBox="-10 -10 300 300" role="img" aria-label="한 변이 a+b인 큰 정사각형 안의 직각삼각형 4개">
+      <rect x="0" y="0" width="280" height="280" fill="#fffbe6" stroke="#2b2340" stroke-width="4"/>
+      <g id="holes"></g>
+      <g class="tri" id="t1" style="transition:transform 1s ease"><polygon points="0,0 120,0 0,160" /></g>
+      <g class="tri" id="t2" style="transition:transform 1s ease"><polygon points="120,0 280,0 280,120" /></g>
+      <g class="tri" id="t3" style="transition:transform 1s ease"><polygon points="280,120 280,280 160,280" /></g>
+      <g class="tri" id="t4" style="transition:transform 1s ease"><polygon points="160,280 0,280 0,160" /></g>
+      <text id="lc" x="140" y="150" font-size="44" text-anchor="middle" fill="#d39e00" style="transition:opacity .6s">c²</text>
+      <text id="la" x="60" y="72" font-size="40" text-anchor="middle" fill="#ff6b6b" style="transition:opacity .6s;opacity:0">a²</text>
+      <text id="lb" x="200" y="226" font-size="48" text-anchor="middle" fill="#4dabf7" style="transition:opacity .6s;opacity:0">b²</text>
+    </svg>
+    <div>
+      <p>한 변이 <b>a + b</b>인 큰 정사각형 안에 삼각형 4개를 넣었어요.</p>
+      <p id="pstep">지금 빈 곳은 한 변이 <b>c</b>인 정사각형 → 넓이 <b style="color:#d39e00">c²</b></p>
+      <button class="btn" id="move">🔀 삼각형 옮기기!</button>
+      <div class="note" id="pconc" style="opacity:.35;transition:opacity .5s">삼각형 4개를 옮겨도 <b>큰 정사각형</b>과 <b>삼각형들의 넓이</b>는 그대로!<br>그러니까 빈 곳의 넓이도 같아요 →
+        <span class="big"><span style="color:var(--a)">a²</span> + <span style="color:var(--b)">b²</span> = <span style="color:#d39e00">c²</span></span></div>
+    </div>
+  </div>
+
+  <h3>📝 증명 2 · 학습지 4번: 닮음으로 증명하기</h3>
+  <div class="grid2">
+    <svg viewBox="-20 10 340 200" role="img" aria-label="각 A가 직각인 삼각형 ABC와 꼭짓점 A에서 BC에 내린 수선 AH">
+      <polygon points="0,180 300,180 108,36" fill="#e7f5ff" stroke="#2b2340" stroke-width="4" stroke-linejoin="round"/>
+      <polygon id="simL" points="0,180 108,180 108,36" fill="#ff6b6b" fill-opacity="0" style="transition:fill-opacity .4s"/>
+      <polygon id="simR" points="108,180 300,180 108,36" fill="#4dabf7" fill-opacity="0" style="transition:fill-opacity .4s"/>
+      <line x1="108" y1="36" x2="108" y2="180" stroke="#9775fa" stroke-width="3" stroke-dasharray="7 5"/>
+      <rect x="108" y="166" width="14" height="14" fill="none" stroke="#9775fa" stroke-width="2"/>
+      <polyline points="100.8,45.6 110.4,52.8 117.6,43.2" fill="none" stroke="#2b2340" stroke-width="2.5"/>
+      <text x="100" y="28" font-size="22">A</text><text x="-18" y="196" font-size="22">B</text>
+      <text x="304" y="196" font-size="22">C</text><text x="101" y="204" font-size="22" fill="#9775fa">H</text>
+    </svg>
+    <div>
+      <p>∠A = 90°인 직각삼각형 ABC에서 꼭짓점 A에서 변 BC에 수선 AH를 내려요. 그러면 <b>서로 닮은 삼각형 3개</b>가 생겨요!</p>
+      <div class="steps" id="simSteps">
+        <button class="btn" data-s="0">① △ABC ∽ △HBA</button>
+        <button class="btn" data-s="1">② △ABC ∽ △HAC</button>
+        <button class="btn" data-s="2">③ 두 식 더하기</button>
+      </div>
+      <div class="eq" id="simEq">버튼을 차례대로 눌러 보세요 👆</div>
+    </div>
+  </div>
+  <div class="tip">⭐ 덤으로 하나 더! △HBA ∽ △HAC (AA 닮음) 이니까 <b>AH² = BH × HC</b> 도 성립해요.</div>
+
+  <div class="quiz" data-type="num" data-answer="12">
+    <div class="qh">🧩 개념 체크 (학습지 4번 응용)</div>
+    <div class="q">위 그림에서 BH = 9, HC = 16 일 때, AH 의 길이는?</div>
+    <div class="numq"><input type="number" inputmode="numeric" placeholder="?"><button class="btn">확인</button></div>
+    <div class="fb" data-ok="정답! AH² = BH × HC = 9 × 16 = 144 이니까 AH = 12 🎯" data-no="힌트: AH² = BH × HC 를 이용해 보세요."></div>
+  </div>
+  <div class="quiz" data-type="num" data-answer="15">
+    <div class="qh">🧩 개념 체크 (학습지 4번 응용)</div>
+    <div class="q">같은 그림에서 (BH = 9, HC = 16) AB 의 길이는?</div>
+    <div class="numq"><input type="number" inputmode="numeric" placeholder="?"><button class="btn">확인</button></div>
+    <div class="fb" data-ok="훌륭해요! AB² = BH × BC = 9 × 25 = 225 이니까 AB = 15 💪" data-no="힌트: AB² = BH × BC 예요. BC = BH + HC 부터 구해 보세요."></div>
+  </div>
+
+  <h3>👀 증명 3 · 바스카라의 “보라!” 증명</h3>
+  <p>12세기 인도의 수학자 <b>바스카라</b>는 아래 그림만 그려 놓고 설명 대신 딱 한 마디를 적었대요. <b>“보라!”</b> 👀 그래서 <b>말이 필요 없는 증명</b>이라고 불러요.</p>
+  <div class="grid2">
+    <svg viewBox="-3.6 -0.5 9.2 9" role="img" aria-label="한 변이 c인 정사각형 안의 직각삼각형 4개와 가운데 작은 정사각형">
+      <polygon points="0,0 5,3 2,8 -3,5" fill="#fffbe6" stroke="#2b2340" stroke-width=".12" stroke-linejoin="round"/>
+      <g id="bhT" style="transition:opacity .4s">
+        <polygon points="0,0 0,3 5,3" fill="#ff8787" stroke="#2b2340" stroke-width=".07"/>
+        <polygon points="5,3 2,3 2,8" fill="#74c0fc" stroke="#2b2340" stroke-width=".07"/>
+        <polygon points="2,8 2,5 -3,5" fill="#8ce99a" stroke="#2b2340" stroke-width=".07"/>
+        <polygon points="-3,5 0,5 0,0" fill="#b197fc" stroke="#2b2340" stroke-width=".07"/>
+      </g>
+      <rect id="bhS" x="0" y="3" width="2" height="2" fill="#ffd43b" stroke="#2b2340" stroke-width=".07" style="transition:opacity .4s"/>
+      <text x="2.9" y="1.2" font-size=".7" fill="#d39e00">c</text>
+      <text x="-.6" y="1.9" font-size=".55" fill="#c92a2a">a</text>
+      <text x="2.3" y="2.75" font-size=".55" fill="#1864ab">b</text>
+      <text x=".55" y="4.25" font-size=".5">b−a</text>
+    </svg>
+    <div>
+      <div class="steps" id="bhSteps">
+        <button class="btn" data-s="0">① 큰 정사각형</button>
+        <button class="btn" data-s="1">② 삼각형 4개</button>
+        <button class="btn" data-s="2">③ 가운데 정사각형</button>
+        <button class="btn" data-s="3">④ 보라!</button>
+      </div>
+      <div class="eq" id="bhEq">버튼을 차례대로 눌러 보세요 👆</div>
+    </div>
+  </div>
+  <div class="vids">
+    <div class="vbox"><div class="yt" data-id="lfUPDuMqZ0M" data-dur="1:05"></div>
+      <div class="vcap">🎬 [말이 필요없는 증명] 피타고라스 정리 증명 2<a href="https://www.youtube.com/watch?v=lfUPDuMqZ0M" target="_blank" rel="noopener">YouTube에서 보기 ↗</a></div></div>
+  </div>
+
+  <div class="tip">🎩 재미있는 사실: 미국의 20대 대통령 <b>제임스 가필드</b>도 대통령이 되기 전 사다리꼴을 이용한 피타고라스 정리 증명을 발표했어요. 증명 방법이 수백 가지나 될 만큼 인기 많은 정리랍니다!</div>
+
+  <div class="quiz" data-type="mc" data-answer="0">
+    <div class="qh">🧩 개념 체크 4</div>
+    <div class="q">세 변의 길이가 <b>6, 8, 10</b>인 삼각형은 직각삼각형일까요?</div>
+    <div class="opts"><button>⭕ 그렇다</button><button>❌ 아니다</button></div>
+    <div class="fb" data-ok="맞아요! 6² + 8² = 36 + 64 = 100 = 10² 이니까 직각삼각형! (3, 4, 5를 2배 한 것)" data-no="가장 긴 변 10을 c로 놓고 6² + 8²를 계산해 보세요!"></div>
+  </div>
+  <div class="quiz" data-type="mc" data-answer="1">
+    <div class="qh">🧩 개념 체크 5</div>
+    <div class="q">세 변의 길이가 <b>4, 5, 6</b>인 삼각형은 직각삼각형일까요?</div>
+    <div class="opts"><button>⭕ 그렇다</button><button>❌ 아니다</button></div>
+    <div class="fb" data-ok="정확해요! 4² + 5² = 41 이고 6² = 36 이라서 같지 않아요. 직각삼각형이 아니에요." data-no="4² + 5² 과 6² 을 비교해 보세요. 같은가요?"></div>
+  </div>
+</section>
+
+<!-- STAGE 4 : 예각·직각·둔각 -->
+<section class="stage" id="s3b">
+  <span class="badge" style="background:#e64980">STAGE 4</span>
+  <h2>예각? 직각? 둔각? 삼각형 판별하기 🔍</h2>
+  <p>세 변의 길이만 알면 각을 재지 않아도 어떤 삼각형인지 알 수 있어요! <b>가장 긴 변의 길이를 c</b>, 나머지 두 변을 a, b 라고 할 때</p>
+  <div class="judge">
+    <div><b style="color:#2b8a3e">c² &lt; a² + b²</b>예각삼각형<br><small>(세 각이 모두 90°보다 작다)</small></div>
+    <div><b style="color:#d39e00">c² = a² + b²</b>직각삼각형<br><small>(한 각이 90°)</small></div>
+    <div><b style="color:#c92a2a">c² &gt; a² + b²</b>둔각삼각형<br><small>(한 각이 90°보다 크다)</small></div>
+  </div>
+  <div class="note">💡 꼭 <b>가장 긴 변</b>을 c 로 놓고 비교해야 해요! 가장 긴 변의 맞은편에 가장 큰 각이 있거든요.</div>
+
+  <h3>🔬 각을 벌렸다 오므렸다 해 보기</h3>
+  <p class="hint">두 변 a = 4, b = 3 은 그대로 두고, 그 사이 각 ∠C 를 바꿔 보세요. 마주 보는 변 c 의 길이가 어떻게 변할까요?</p>
+  <div class="lab">
+    <div>
+      <label>∠C = <span id="angV">90</span>°</label><input type="range" id="angR" min="30" max="150" value="90">
+      <div class="readout" id="angOut"></div>
+      <div style="margin-top:10px"><span class="verdict" id="angVerdict"></span></div>
+    </div>
+    <svg id="angSvg" viewBox="-3.4 -3.6 8.4 4.4" role="img" aria-label="두 변 4와 3 사이의 각을 바꾸는 삼각형"></svg>
+  </div>
+
+  <h3>🧮 세 변 판별기</h3>
+  <div class="tri3">
+    <input type="number" id="side1" value="5" min="0" step="any" aria-label="첫째 변">
+    <input type="number" id="side2" value="7" min="0" step="any" aria-label="둘째 변">
+    <input type="number" id="side3" value="9" min="0" step="any" aria-label="셋째 변">
+    <button class="btn" id="judgeBtn">판별하기</button>
+  </div>
+  <div class="readout" id="judgeOut" style="margin-top:10px">세 변의 길이를 넣고 판별하기를 눌러 보세요.</div>
+
+  <div class="quiz" data-type="mc" data-answer="0">
+    <div class="qh">🧩 개념 체크</div>
+    <div class="q">세 변의 길이가 <b>4, 5, 6</b> 인 삼각형은?</div>
+    <div class="opts"><button>예각삼각형</button><button>직각삼각형</button><button>둔각삼각형</button></div>
+    <div class="fb" data-ok="정답! 6² = 36 < 4² + 5² = 41 이니까 예각삼각형 🎯" data-no="가장 긴 변 6의 제곱(36)과 4² + 5²(41)을 비교해 보세요."></div>
+  </div>
+  <div class="quiz" data-type="mc" data-answer="2">
+    <div class="qh">🧩 개념 체크</div>
+    <div class="q">세 변의 길이가 <b>2, 3, 4</b> 인 삼각형은?</div>
+    <div class="opts"><button>예각삼각형</button><button>직각삼각형</button><button>둔각삼각형</button></div>
+    <div class="fb" data-ok="맞아요! 4² = 16 > 2² + 3² = 13 이니까 둔각삼각형 📐" data-no="4² 과 2² + 3² 중 어느 쪽이 더 큰가요?"></div>
+  </div>
+  <div class="quiz" data-type="mc" data-answer="1">
+    <div class="qh">🧩 개념 체크</div>
+    <div class="q">세 변의 길이가 <b>9, 12, 15</b> 인 삼각형은?</div>
+    <div class="opts"><button>예각삼각형</button><button>직각삼각형</button><button>둔각삼각형</button></div>
+    <div class="fb" data-ok="정답! 15² = 225 = 9² + 12² = 81 + 144 → 직각삼각형 (3, 4, 5의 3배!)" data-no="15² 과 9² + 12² 을 계산해서 비교해 보세요."></div>
+  </div>
+</section>
+
+<!-- STAGE 5 -->
+<section class="stage" id="s4">
+  <span class="badge" style="background:var(--p)">STAGE 5</span>
+  <h2>수상한 비밀 클럽, 피타고라스 학파 🕵️</h2>
+  <div class="grid2">
+    <div>
+      <p><b>피타고라스</b>(기원전 약 570년 ~ 495년)는 그리스 <b>사모스 섬</b>에서 태어났어요. 훗날 이탈리아 남부 <b>크로톤</b>에 학교를 세웠는데, 이 모임이 바로 <b>피타고라스 학파</b>예요.</p>
+      <p>이곳은 수학·음악·천문학을 연구하는 <b>학교</b>이면서, 엄격한 규칙을 지키는 <b>종교 공동체</b>이기도 했어요.</p>
+    </div>
+    <div class="note" style="text-align:center"><div class="big">“만물의 근원은 <span style="color:var(--p)">수</span>(數)이다!”</div>
+      <div class="hint">세상 모든 것은 수와 수의 비율로 설명할 수 있다고 믿었어요.</div></div>
+  </div>
+
+  <p class="hint">👇 카드를 눌러 뒤집어 보세요!</p>
+  <div class="cards">
+    <div class="flip"><div class="in">
+      <div class="f"><div class="em">🤫</div><div class="t">비밀 엄수!</div><small>눌러서 확인</small></div>
+      <div class="bk">학파에서 알아낸 지식은 바깥에 알리면 안 되는 <b>비밀</b>이었어요. 또 제자들의 발견도 모두 스승 <b>피타고라스의 업적</b>으로 돌렸대요. 그래서 피타고라스 정리도 사실 누가 처음 증명했는지 정확히 알 수 없어요.</div>
+    </div></div>
+    <div class="flip"><div class="in">
+      <div class="f"><div class="em">🫘</div><div class="t">콩 먹기 금지?!</div><small>눌러서 확인</small></div>
+      <div class="bk">학파에는 이상한 규칙이 많았다고 전해져요. 고기를 먹지 않고, <b>콩을 먹지 말라</b>는 규칙도 있었대요. 재산은 함께 나누어 쓰는 공동생활을 했어요.</div>
+    </div></div>
+    <div class="flip"><div class="in">
+      <div class="f"><div class="em">🎵</div><div class="t">음악 속의 수학</div><small>눌러서 확인</small></div>
+      <div class="bk">줄의 길이를 <b>2 : 1</b>로 하면 한 옥타브 높은 소리, <b>3 : 2</b>면 아름다운 5도 화음! 듣기 좋은 소리가 <b>간단한 정수의 비</b>로 만들어진다는 걸 발견했어요.</div>
+    </div></div>
+    <div class="flip"><div class="in">
+      <div class="f"><svg class="pic" viewBox="0 0 100 100" aria-label="정오각형 안의 별 모양(펜타그램)">
+        <polygon points="50,10 88.04,37.64 73.51,82.36 26.49,82.36 11.96,37.64" fill="#fff" stroke="#2b2340" stroke-width="3" stroke-linejoin="round"/>
+        <polygon points="50,10 73.51,82.36 11.96,37.64 88.04,37.64 26.49,82.36" fill="#ffd43b" fill-opacity=".6" stroke="#9775fa" stroke-width="3" stroke-linejoin="round"/>
+      </svg><div class="t">별 모양 배지 (펜타그램)</div><small>눌러서 확인</small></div>
+      <div class="bk">학파의 상징은 정오각형 안에 그린 <b>별 모양(펜타그램)</b>이었어요. 이 별 속에는 <b>황금비</b>가 숨어 있답니다.</div>
+    </div></div>
+    <div class="flip"><div class="in">
+      <div class="f"><svg class="pic" viewBox="0 0 100 92" aria-label="점 1, 2, 3, 4개를 쌓은 삼각형(테트락티스)">
+        <polygon points="50,8 92,84 8,84" fill="#fff4c2" stroke="#2b2340" stroke-width="2" stroke-dasharray="4 4"/>
+        <g fill="#9775fa">
+          <circle cx="50" cy="20" r="7"/>
+          <circle cx="40" cy="38" r="7"/><circle cx="60" cy="38" r="7"/>
+          <circle cx="30" cy="56" r="7"/><circle cx="50" cy="56" r="7"/><circle cx="70" cy="56" r="7"/>
+          <circle cx="20" cy="74" r="7"/><circle cx="40" cy="74" r="7"/><circle cx="60" cy="74" r="7"/><circle cx="80" cy="74" r="7"/>
+        </g>
+      </svg><div class="t">신성한 수 10 (테트락티스)</div><small>눌러서 확인</small></div>
+      <div class="bk">점을 1개, 2개, 3개, 4개 쌓으면 삼각형 모양이 되고 모두 <b>1+2+3+4 = 10</b>개! 이 모양(테트락티스)을 신성하게 여겼대요.</div>
+    </div></div>
+    <div class="flip"><div class="in">
+      <div class="f"><div class="em">🏺</div><div class="t">더 오래된 비밀</div><small>눌러서 확인</small></div>
+      <div class="bk">사실 피타고라스보다 1000년도 더 전, <b>고대 바빌로니아</b> 점토판에도 (3, 4, 5) 같은 피타고라스 수가 적혀 있어요. 다만 <b>모든 직각삼각형에서 성립함을 증명</b>한 것은 피타고라스 학파로 전해져요.</div>
+    </div></div>
+  </div>
+
+  <div class="vids">
+    <div class="vbox"><div class="yt" data-id="-wObzr1Nhv0" data-start="3" data-end="66"></div>
+      <div class="vcap">🎬 피타고라스 학파는 과학 + 종교 집단?<a href="https://www.youtube.com/watch?v=-wObzr1Nhv0" target="_blank" rel="noopener">전체 영상(4분) YouTube에서 보기 ↗</a></div></div>
+    <div class="vbox"><div class="yt" data-id="PLMAULYCNco" data-start="61" data-end="155"></div>
+      <div class="vcap">🎬 EBS – 이집트·바빌로니아에서 만난 3 : 4 : 5<a href="https://youtu.be/PLMAULYCNco" target="_blank" rel="noopener">전체 영상(8분) YouTube에서 보기 ↗</a></div></div>
+    <div class="vbox"><div class="yt" data-id="PLMAULYCNco" data-start="186" data-end="260"></div>
+      <div class="vcap">🎬 EBS – 대장간 망치 소리에서 찾은 수의 비율 🎵<a href="https://youtu.be/PLMAULYCNco" target="_blank" rel="noopener">전체 영상(8분) YouTube에서 보기 ↗</a></div></div>
+  </div>
+
+  <div class="quiz" data-type="mc" data-answer="1">
+    <div class="qh">🧩 개념 체크 6</div>
+    <div class="q">피타고라스 학파가 믿었던 생각은?</div>
+    <div class="opts"><button>만물의 근원은 물이다</button><button>만물의 근원은 수이다</button><button>만물의 근원은 불이다</button></div>
+    <div class="fb" data-ok="정답! ‘만물의 근원은 수’ — 그래서 수학을 그렇게 열심히 연구했어요 🔢" data-no="학파의 이름처럼 수학을 사랑한 사람들이었어요. 다시 골라 볼까요?"></div>
+  </div>
+  <div class="quiz" data-type="mc" data-answer="0">
+    <div class="qh">🧩 개념 체크 7</div>
+    <div class="q">듣기 좋은 화음의 비밀은? 줄의 길이를 절반(2 : 1)으로 하면…</div>
+    <div class="opts"><button>한 옥타브 높은 소리</button><button>소리가 사라진다</button><button>한 옥타브 낮은 소리</button></div>
+    <div class="fb" data-ok="맞아요! 줄이 짧아지면 소리가 높아지고, 절반이면 정확히 한 옥타브 위! 🎶" data-no="줄이 짧아지면 소리는 높아질까요, 낮아질까요?"></div>
+  </div>
+</section>
+
+<!-- STAGE 5 -->
+<section class="stage" id="s5">
+  <span class="badge" style="background:#f76707">STAGE 6</span>
+  <h2>학파를 뒤흔든 사건: 무리수의 등장 😱</h2>
+  <div class="grid2">
+    <svg viewBox="0 0 240 240" role="img" aria-label="한 변이 1인 정사각형과 대각선">
+      <rect x="40" y="40" width="160" height="160" fill="#e7f5ff" stroke="#2b2340" stroke-width="4"/>
+      <line x1="40" y1="200" x2="200" y2="40" stroke="#f76707" stroke-width="6" stroke-linecap="round"/>
+      <text x="120" y="226" font-size="24" text-anchor="middle">1</text>
+      <text x="20" y="128" font-size="24" text-anchor="middle">1</text>
+      <text x="138" y="112" font-size="28" fill="#f76707">?</text>
+    </svg>
+    <div>
+      <p>한 변이 1인 정사각형의 <b>대각선</b> 길이는? 피타고라스 정리로 계산하면</p>
+      <p class="big">1² + 1² = 2 → 대각선 = <span style="color:#f76707">√2</span></p>
+      <p>그런데 √2 = 1.41421356… 은 <b>분수(정수의 비)로 나타낼 수 없는 수</b>, 즉 <b>무리수</b>였어요!</p>
+      <div class="note">“모든 것은 정수의 비로 설명된다”고 믿던 학파에겐 큰 충격! 이 사실을 알아낸 제자 <b>히파수스</b>가 비밀을 밖에 알려 바다에 던져졌다는 <b>전설</b>까지 전해져요. 🌊</div>
+    </div>
+  </div>
+  <div class="vids">
+    <div class="vbox"><div class="yt" data-id="go5tMjW7Jog" data-start="217" data-end="308"></div>
+      <div class="vcap">🎬 EBS – 히파수스, √2를 발견하다!<a href="https://www.youtube.com/watch?v=go5tMjW7Jog" target="_blank" rel="noopener">전체 영상(6분) YouTube에서 보기 ↗</a></div></div>
+  </div>
+  <div class="quiz" data-type="mc" data-answer="2">
+    <div class="qh">🧩 개념 체크 8</div>
+    <div class="q">한 변의 길이가 1인 정사각형의 대각선의 길이는?</div>
+    <div class="opts"><button>1</button><button>2</button><button>√2</button><button>1.5</button></div>
+    <div class="fb" data-ok="정답! 1² + 1² = 2 이니까 대각선은 √2 ✨" data-no="대각선을 빗변으로 하는 직각삼각형을 생각해 보세요. c² = 1² + 1² = ?"></div>
+  </div>
+</section>
+
+<!-- STAGE 6 -->
+<section class="stage final" id="s6">
+  <span class="badge" style="background:var(--ink)">FINAL</span>
+  <h2>🏆 최종 보스: 생활 속 피타고라스</h2>
+  <div style="text-align:left">
+  <div class="quiz" data-type="num" data-answer="8">
+    <div class="qh">🪜 보스 문제 1</div>
+    <div class="q">길이 10 m 사다리를 벽에 기대 세웠어요. 사다리 아래 끝이 벽에서 6 m 떨어져 있다면, 사다리 위 끝은 바닥에서 몇 m 높이에 있을까요?</div>
+    <div class="numq"><input type="number" inputmode="numeric" placeholder="? m"><button class="btn">확인</button></div>
+    <div class="fb" data-ok="보스 격파! 10² − 6² = 100 − 36 = 64 = 8² 🪜" data-no="사다리가 빗변(10)이에요. 높이² = 10² − 6²"></div>
+  </div>
+  <div class="quiz" data-type="num" data-answer="13">
+    <div class="qh">🗺️ 보스 문제 2</div>
+    <div class="q">집에서 동쪽으로 12 km, 다시 북쪽으로 5 km를 걸었어요. 집까지 <b>일직선</b> 거리는 몇 km일까요?</div>
+    <div class="numq"><input type="number" inputmode="numeric" placeholder="? km"><button class="btn">확인</button></div>
+    <div class="fb" data-ok="완벽해요! 12² + 5² = 144 + 25 = 169 = 13² 🧭" data-no="동쪽과 북쪽은 직각을 이뤄요. 12² + 5² = ?"></div>
+  </div>
+  <div class="quiz" data-type="num" data-answer="17">
+    <div class="qh">📺 보스 문제 3</div>
+    <div class="q">가로 15, 세로 8인 직사각형 모양 화면의 대각선 길이는?</div>
+    <div class="numq"><input type="number" inputmode="numeric" placeholder="?"><button class="btn">확인</button></div>
+    <div class="fb" data-ok="최종 보스 클리어! 15² + 8² = 225 + 64 = 289 = 17² 📺" data-no="대각선이 빗변! 15² + 8² 를 계산하고, 제곱해서 그 값이 되는 수를 찾아요."></div>
+  </div>
+  </div>
+  <div id="result">문제를 모두 풀면 결과가 나타나요!</div>
+  <button class="btn" id="reset">🔄 처음부터 다시 도전</button>
+</section>
+
+</div>
+<footer>영상 출처: Numdive · 깍두기공돌이 · 흥미로운 지식 · EBS 컬렉션 - 사이언스 · 아트앤스터디 · 대치동 서선생 (YouTube)<br>영상이 재생되지 않으면 영상 아래 “YouTube에서 보기”를 눌러 주세요.</footer>
+
+<script>
+/* ---------- 영상: 썸네일 클릭 시 재생 ---------- */
+if(location.protocol==='file:'){document.getElementById('fileWarn').hidden=false;}
+const mmss=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+document.querySelectorAll('.yt').forEach(el=>{
+  const id=el.dataset.id,st=+el.dataset.start||0,en=+el.dataset.end||0;
+  // 긴 영상은 핵심 구간만 재생 (start~end)
+  const label=en?`✂️ 핵심만 ${mmss(en-st)} (${mmss(st)}~${mmss(en)})`:(el.dataset.dur?`⏱ ${el.dataset.dur}`:'');
+  el.innerHTML=`<img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="영상 썸네일" loading="lazy"><div class="play"><b></b></div>${label?`<span class="dur">${label}</span>`:''}`;
+  el.addEventListener('click',()=>{
+    if(el.querySelector('iframe'))return;
+    // 파일을 직접 열면(file://) YouTube가 페이지 안 재생을 막기 때문에, 다른 곳으로 넘어가지 않고 안내만 보여 줌
+    if(location.protocol==='file:'){
+      if(el.querySelector('.fileMsg'))return;
+      const m=document.createElement('div');m.className='fileMsg';
+      m.innerHTML='<div>📺 영상을 보려면 이렇게 열어 주세요<br>① 이 브라우저 창 닫기<br>② 이 HTML 파일이 있던 폴더 열기<br>③ ⚙️ <b>수업용_실행</b> 파일 더블클릭<br><small>(파일을 바로 열면 YouTube가 재생을 막아요)</small></div>';
+      el.appendChild(m);return;
+    }
+    const start=(st?`&start=${st}`:'')+(en?`&end=${en}`:'');
+    el.innerHTML=`<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&playsinline=1${start}" title="YouTube 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+  },{once:false});
+});
+
+/* ---------- 효과음 ---------- */
+let actx;
+function beep(ok){
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const notes=ok?[523,659,784]:[220,180];
+    notes.forEach((f,i)=>{
+      const o=actx.createOscillator(),g=actx.createGain();
+      o.type=ok?'triangle':'sawtooth';o.frequency.value=f;
+      g.gain.setValueAtTime(.12,actx.currentTime+i*.09);
+      g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+i*.09+.25);
+      o.connect(g).connect(actx.destination);o.start(actx.currentTime+i*.09);o.stop(actx.currentTime+i*.09+.3);
+    });
+  }catch(e){}
+}
+
+/* ---------- 퀴즈 ---------- */
+const quizzes=[...document.querySelectorAll('.quiz')];
+let solved=0,score=0;
+document.getElementById('total').textContent=quizzes.length;
+function update(){
+  document.getElementById('score').textContent=score;
+  document.getElementById('bar').style.width=(solved/quizzes.length*100)+'%';
+  if(solved===quizzes.length){
+    const r=document.getElementById('result');
+    const msg=score===quizzes.length?'🥇 만점! 당신은 피타고라스 학파의 정식 회원!':score>=quizzes.length-3?'🥈 훌륭해요! 피타고라스가 박수를 보냅니다 👏':'🥉 완주 성공! 틀린 문제를 다시 보면 더 강해져요 💪';
+    r.innerHTML=`⭐ ${score} / ${quizzes.length}<br>${msg}`;
+    confetti();
+  }
+}
+quizzes.forEach(q=>{
+  const fb=q.querySelector('.fb');let tries=0,done=false;
+  function finish(ok){
+    if(ok){
+      done=true;solved++;if(tries===0)score++;
+      fb.className='fb ok';fb.textContent=fb.dataset.ok+(tries===0?' (+⭐)':'');
+      beep(true);smallBurst(q);update();
+    }else{
+      tries++;fb.className='fb no';fb.textContent=fb.dataset.no;beep(false);
+    }
+  }
+  if(q.dataset.type==='mc'){
+    const bs=[...q.querySelectorAll('.opts button')];
+    bs.forEach((b,i)=>b.addEventListener('click',()=>{
+      if(done)return;
+      if(i==+q.dataset.answer){b.classList.add('right');bs.forEach(x=>x.disabled=true);finish(true);}
+      else{b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');b.disabled=true;finish(false);}
+    }));
+  }else{
+    const inp=q.querySelector('input'),btn=q.querySelector('button');
+    const check=()=>{
+      if(done||inp.value==='')return;
+      if(+inp.value===+q.dataset.answer){inp.disabled=true;btn.disabled=true;inp.style.background='#d3f9d8';finish(true);}
+      else{inp.style.background='#ffe3e3';finish(false);}
+    };
+    btn.addEventListener('click',check);
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')check();});
+  }
+});
+document.getElementById('reset').addEventListener('click',()=>location.reload());
+
+/* ---------- 넓이 탐험기 ---------- */
+const svg=document.getElementById('labsvg'),ar=document.getElementById('ar'),br=document.getElementById('br');
+const triples=new Set(['3,4','4,3','5,12','12,5','6,8','8,6','8,15','15,8','9,12','12,9']);
+function draw(){
+  const a=+ar.value,b=+br.value,c2=a*a+b*b,c=Math.sqrt(c2);
+  document.getElementById('av').textContent=a;document.getElementById('bv').textContent=b;
+  // 직각 꼭짓점 P(0,0), 가로 변 b(→), 세로 변 a(↑)
+  const A=[0,-a],B=[b,0];
+  const n=[a,-b]; // 빗변 바깥쪽 방향
+  const sqA=[[0,0],[0,-a],[-a,-a],[-a,0]];
+  const sqB=[[0,0],[b,0],[b,b],[0,b]];
+  const sqC=[A,B,[B[0]+n[0],B[1]+n[1]],[A[0]+n[0],A[1]+n[1]]];
+  const all=[...sqA,...sqB,...sqC];
+  const xs=all.map(p=>p[0]),ys=all.map(p=>p[1]);
+  const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  const pad=(maxX-minX)*.06;
+  svg.setAttribute('viewBox',`${minX-pad} ${minY-pad} ${maxX-minX+2*pad} ${maxY-minY+2*pad}`);
+  const s=(maxX-minX)/400; // 글자 크기 보정
+  const pts=arr=>arr.map(p=>p.join(',')).join(' ');
+  const cen=arr=>[arr.reduce((t,p)=>t+p[0],0)/4,arr.reduce((t,p)=>t+p[1],0)/4];
+  const ca=cen(sqA),cb=cen(sqB),cc=cen(sqC);
+  // 격자(단위 정사각형) - 칸 수를 세어볼 수 있게
+  let grid='';
+  for(let i=1;i<a;i++){grid+=`<line x1="${-i}" y1="0" x2="${-i}" y2="${-a}"/><line x1="0" y1="${-i}" x2="${-a}" y2="${-i}"/>`;}
+  for(let i=1;i<b;i++){grid+=`<line x1="${i}" y1="0" x2="${i}" y2="${b}"/><line x1="0" y1="${i}" x2="${b}" y2="${i}"/>`;}
+  const fs=Math.max(18*s,.5);
+  svg.innerHTML=`
+    <polygon points="${pts(sqA)}" fill="#ff6b6b" fill-opacity=".35" stroke="#ff6b6b" stroke-width="${2*s}"/>
+    <polygon points="${pts(sqB)}" fill="#4dabf7" fill-opacity=".35" stroke="#4dabf7" stroke-width="${2*s}"/>
+    <polygon points="${pts(sqC)}" fill="#ffd43b" fill-opacity=".45" stroke="#e0a800" stroke-width="${2*s}"/>
+    <g stroke="#2b2340" stroke-opacity=".25" stroke-width="${1*s}">${grid}</g>
+    <polygon points="0,0 ${b},0 0,${-a}" fill="#fff" stroke="#2b2340" stroke-width="${3*s}" stroke-linejoin="round"/>
+    <text x="${ca[0]}" y="${ca[1]}" font-size="${fs}" text-anchor="middle" dominant-baseline="middle" fill="#c92a2a">${a*a}</text>
+    <text x="${cb[0]}" y="${cb[1]}" font-size="${fs}" text-anchor="middle" dominant-baseline="middle" fill="#1864ab">${b*b}</text>
+    <text x="${cc[0]}" y="${cc[1]}" font-size="${fs*1.2}" text-anchor="middle" dominant-baseline="middle" fill="#8f6900">${c2}</text>`;
+  const cStr=Number.isInteger(c)?c:('√'+c2+' ≈ '+c.toFixed(2));
+  document.getElementById('readout').innerHTML=
+    `<span class="ra">${a}²</span> + <span class="rb">${b}²</span> = <span class="ra">${a*a}</span> + <span class="rb">${b*b}</span> = <span class="rc">${c2}</span><br>빗변 c = <span class="rc">${cStr}</span>`;
+  const nice=document.getElementById('nice');
+  if(Number.isInteger(c)){nice.innerHTML=`✨ 피타고라스 수 발견! (${a}, ${b}, ${c})`;nice.style.color='#2b8a3e';}
+  else{nice.textContent='세 변이 모두 자연수가 되는 조합을 찾아보세요!';nice.style.color='';}
+}
+ar.addEventListener('input',draw);br.addEventListener('input',draw);draw();
+
+/* ---------- 증명 퍼즐 (a=3, b=4, 한 칸=40) ---------- */
+const U=40,A3=3*U,B4=4*U,colors=['#ff8787','#74c0fc','#8ce99a','#b197fc'];
+['t1','t2','t3','t4'].forEach((id,i)=>{const p=document.querySelector('#'+id+' polygon');p.setAttribute('fill',colors[i]);p.setAttribute('stroke','#2b2340');p.setAttribute('stroke-width','3');p.setAttribute('stroke-linejoin','round');});
+// 삼각형 좌표: 꼭짓점 (a,0),(a+b,a),(b,a+b),(0,b)로 만드는 정사각형 → 원래 polygon 좌표와 맞춤
+document.querySelector('#t1 polygon').setAttribute('points',`0,0 ${A3},0 0,${B4}`);
+document.querySelector('#t2 polygon').setAttribute('points',`${A3},0 280,0 280,${A3}`);
+document.querySelector('#t3 polygon').setAttribute('points',`280,${A3} 280,280 ${B4},280`);
+document.querySelector('#t4 polygon').setAttribute('points',`${B4},280 0,280 0,${B4}`);
+const moves={t1:[0,A3],t2:[0,0],t3:[-B4,0],t4:[A3,-B4]};
+let moved=false;
+document.getElementById('move').addEventListener('click',()=>{
+  moved=!moved;
+  for(const id in moves){const [dx,dy]=moved?moves[id]:[0,0];document.getElementById(id).style.transform=`translate(${dx}px,${dy}px)`;}
+  document.getElementById('lc').style.opacity=moved?0:1;
+  document.getElementById('la').style.opacity=moved?1:0;
+  document.getElementById('lb').style.opacity=moved?1:0;
+  document.getElementById('pstep').innerHTML=moved
+    ?'빈 곳이 한 변 <b style="color:var(--a)">a</b>, <b style="color:var(--b)">b</b>인 정사각형 두 개로 바뀌었어요 → 넓이 <b style="color:var(--a)">a²</b> + <b style="color:var(--b)">b²</b>'
+    :'지금 빈 곳은 한 변이 <b>c</b>인 정사각형 → 넓이 <b style="color:#d39e00">c²</b>';
+  document.getElementById('move').textContent=moved?'↩️ 원래대로':'🔀 삼각형 옮기기!';
+  document.getElementById('pconc').style.opacity=moved?1:.35;
+});
+
+/* ---------- 단계별 설명 버튼 공통 ---------- */
+function stepper(boxId,eqId,texts,onStep){
+  const bs=[...document.querySelectorAll('#'+boxId+' button')];
+  bs.forEach((b,i)=>b.addEventListener('click',()=>{
+    bs.forEach((x,j)=>x.classList.toggle('on',j<=i));
+    document.getElementById(eqId).innerHTML=texts.slice(0,i+1).join('<br>');
+    onStep&&onStep(i);
+  }));
+}
+// 닮음 증명 (학습지 4번)
+stepper('simSteps','simEq',[
+  '① △ABC ∽ △HBA (∠B 공통, ∠BAC = ∠BHA = 90° → AA 닮음)<br>→ AB : BH = BC : AB 이므로 <span style="color:#c92a2a">AB² = BH × BC</span>',
+  '② △ABC ∽ △HAC (∠C 공통, ∠BAC = ∠AHC = 90° → AA 닮음)<br>→ AC : HC = BC : AC 이므로 <span style="color:#1864ab">AC² = HC × BC</span>',
+  '③ 두 식을 더하면 AB² + AC² = BC × (BH + HC) = BC × BC<br>∴ <span style="color:#d39e00;font-size:24px">AB² + AC² = BC²</span> 🎉'
+],i=>{
+  document.getElementById('simL').setAttribute('fill-opacity',i===0||i===2?.45:0);
+  document.getElementById('simR').setAttribute('fill-opacity',i>=1?.45:0);
+});
+// 바스카라 증명
+stepper('bhSteps','bhEq',[
+  '① 한 변이 c 인 큰 정사각형의 넓이 = <b style="color:#d39e00">c²</b>',
+  '② 직각삼각형 4개의 넓이 = 4 × (½ × a × b) = <b>2ab</b>',
+  '③ 가운데 작은 정사각형의 넓이 = <b>(b − a)²</b> = b² − 2ab + a²',
+  '④ c² = 2ab + (b² − 2ab + a²) = <b style="color:#d39e00;font-size:24px">a² + b²</b> 👀 보라!'
+],i=>{
+  document.getElementById('bhT').style.opacity=(i===2)?.25:1;
+  document.getElementById('bhS').style.opacity=(i===1)?.25:1;
+});
+
+/* ---------- 예각·직각·둔각 ---------- */
+const VERD={acute:['예각삼각형','#2b8a3e'],right:['직각삼각형','#e0a800'],obtuse:['둔각삼각형','#c92a2a']};
+function drawAngle(){
+  const deg=+document.getElementById('angR').value, t=deg*Math.PI/180, A=4, B=3;
+  document.getElementById('angV').textContent=deg;
+  const ax=B*Math.cos(t), ay=-B*Math.sin(t); // C(0,0), 꼭짓점 B(4,0), 꼭짓점 A(ax,ay)
+  const c2=A*A+B*B-2*A*B*Math.cos(t), c2r=Math.round(c2*100)/100;
+  const kind=deg===90?'right':deg<90?'acute':'obtuse';
+  const col=VERD[kind][1];
+  // 각 표시 호
+  const r=.7, arc=`M ${r} 0 A ${r} ${r} 0 0 0 ${r*Math.cos(t)} ${-r*Math.sin(t)}`;
+  const mark=deg===90?`<rect x="0" y="-.5" width=".5" height=".5" fill="none" stroke="${col}" stroke-width=".06"/>`:`<path d="${arc}" fill="none" stroke="${col}" stroke-width=".08"/>`;
+  document.getElementById('angSvg').innerHTML=`
+    <polygon points="0,0 4,0 ${ax},${ay}" fill="${col}" fill-opacity=".15" stroke="#2b2340" stroke-width=".08" stroke-linejoin="round"/>
+    <line x1="4" y1="0" x2="${ax}" y2="${ay}" stroke="${col}" stroke-width=".14" stroke-linecap="round"/>
+    ${mark}
+    <text x="1.8" y=".5" font-size=".42" fill="#1864ab">a = 4</text>
+    <text x="${ax/2-.9}" y="${ay/2}" font-size=".42" fill="#c92a2a">b = 3</text>
+    <text x="${(ax+4)/2+.1}" y="${ay/2-.15}" font-size=".42" fill="${col}">c</text>
+    <text x="-.45" y=".45" font-size=".4">C</text>`;
+  const cmp=kind==='right'?'=':kind==='acute'?'&lt;':'&gt;';
+  document.getElementById('angOut').innerHTML=`c² = <span class="rc">${c2r}</span><br>a² + b² = 16 + 9 = 25<br>→ c² ${cmp} a² + b²`;
+  const v=document.getElementById('angVerdict');v.textContent=VERD[kind][0];v.style.background=col;
+}
+document.getElementById('angR').addEventListener('input',drawAngle);drawAngle();
+
+document.getElementById('judgeBtn').addEventListener('click',()=>{
+  const s=['side1','side2','side3'].map(id=>parseFloat(document.getElementById(id).value)).sort((x,y)=>x-y);
+  const out=document.getElementById('judgeOut');
+  if(s.some(x=>!(x>0))){out.innerHTML='세 변의 길이를 모두 0보다 큰 수로 넣어 주세요.';return;}
+  const [a,b,c]=s;
+  if(a+b<=c){out.innerHTML=`🚫 ${a} + ${b} ≤ ${c} 라서 <b>삼각형이 만들어지지 않아요!</b> (두 짧은 변의 합이 가장 긴 변보다 커야 해요)`;return;}
+  const L=Math.round(c*c*1000)/1000, R=Math.round((a*a+b*b)*1000)/1000;
+  const kind=L===R?'right':L<R?'acute':'obtuse';
+  const cmp=kind==='right'?'=':kind==='acute'?'&lt;':'&gt;';
+  out.innerHTML=`가장 긴 변 c = ${c}<br>c² = ${L} ${cmp} ${a}² + ${b}² = ${R}<br>→ <span class="verdict" style="background:${VERD[kind][1]}">${VERD[kind][0]}</span>`;
+});
+
+/* ---------- 카드 뒤집기 ---------- */
+document.querySelectorAll('.flip').forEach(f=>f.addEventListener('click',()=>f.classList.toggle('on')));
+
+/* ---------- 색종이 ---------- */
+const cv=document.getElementById('confetti'),cx=cv.getContext('2d');let parts=[],raf=null;
+function resize(){cv.width=innerWidth;cv.height=innerHeight;}addEventListener('resize',resize);resize();
+const palette=['#ff6b6b','#4dabf7','#ffd43b','#51cf66','#9775fa','#f76707'];
+function spawn(x,y,n,spread){for(let i=0;i<n;i++)parts.push({x,y,vx:(Math.random()-.5)*spread,vy:-Math.random()*spread-2,g:.25,s:4+Math.random()*6,c:palette[i%6],r:Math.random()*6,life:120});if(!raf)tick();}
+function tick(){cx.clearRect(0,0,cv.width,cv.height);parts=parts.filter(p=>p.life-->0&&p.y<cv.height+20);
+  parts.forEach(p=>{p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.r+=.1;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);cx.restore();});
+  raf=parts.length?requestAnimationFrame(tick):null;}
+function smallBurst(el){const r=el.getBoundingClientRect();spawn(r.left+r.width/2,r.top+30,30,10);}
+function confetti(){for(let k=0;k<5;k++)setTimeout(()=>spawn(Math.random()*innerWidth,innerHeight*.3,80,16),k*250);}
+</script>
+</body>
+</html>
